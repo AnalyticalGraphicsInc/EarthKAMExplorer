@@ -28,7 +28,7 @@ define(function(require) {
             var gridData = new Array(data.length);
             for ( var i = 0, len = data.length; i < len; ++i) {
                 var datum = data[i];
-                gridData[i] = [datum.ID, datum.Time, datum.Mission, datum.School];
+                gridData[i] = [datum.ID, datum.Time.toIso8601(), datum.Mission, datum.School];
             }
             createGrid(gridData);
             return gridData;
