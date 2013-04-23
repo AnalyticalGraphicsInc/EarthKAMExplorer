@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CesiumLanguageWriter">
-      <HintPath>..\..\..\..\..\..\..\Git\AnalyticalGraphicsInc\czml-writer\DotNet\CesiumLanguageWriter\bin\Release\CesiumLanguageWriter.dll</HintPath>
+      <HintPath>..\czml-writer\CesiumLanguageWriter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
