@@ -8,6 +8,7 @@ define(function(require) {
     var createFlyToExtentAnimation = require('./createFlyToExtentAnimation');
     var createImageryProviderViewModels = require('./createImageryProviderViewModels');
     var getQueryParameters = require('./getQueryParameters');
+    var onFrameChanged = require('./onFrameChanged');
 
     var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
 
@@ -313,66 +314,9 @@ define(function(require) {
             return index;
         });
 
-        var firstValidFrame;
-        var pickGesture = false;
-
-        function map(value, inputMin, inputMax, outputMin, outputMax){
-            var outVal = ((value - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin);
-            if(outVal >  outputMax){
-                outVal = outputMax;
-            }
-            if(outVal <  outputMin){
-                outVal = outputMin;
-            }
-            return outVal;
-        }
-
         var controller = new Leap.Controller({enableGestures: true});
         controller.on('frame', function(frame) {
-            var camera = scene.getCamera();
-
-            if (frame.valid && frame.hands.length > 0) {
-              if (typeof firstValidFrame === 'undefined') {
-                  firstValidFrame = frame;
-              }
-              var translation = firstValidFrame.translation(frame);
-
-              //assign rotation coordinates
-              var rotateX = translation[0];
-              var rotateY = -map(translation[1], -300, 300, 1, 179);
-              var zoom = translation[2];
-
-              var cameraRadius = camera.position.magnitude() - zoom * 100.0;
-
-              //adjust 3D spherical coordinates of the camera
-              camera.position.x = cameraRadius * Math.sin(rotateY * Math.PI/180) * Math.cos(rotateX * Math.PI/180);
-              camera.position.y = cameraRadius * Math.sin(rotateY * Math.PI/180) * Math.sin(rotateX * Math.PI/180);
-              camera.position.z = cameraRadius * Math.cos(rotateY * Math.PI/180);
-
-              var gestures = frame.gestures;
-              var length = frame.gestures.length;
-              if (length > 0) {
-                  for (var i = 0; i < length; ++i) {
-                      if (gestures[i].type === 'keyTap') {
-                          pickGesture = true;
-                      }
-                  }
-              }
-            }
-
-            var p = camera.position.negate().normalize();
-            var up = Cesium.Cartesian3.cross(p, Cesium.Cartesian3.UNIT_Z).cross(p);
-            camera.controller.lookAt(camera.position, Cesium.Cartesian3.ZERO, up);
-
-            if (pickGesture) {
-                pickGesture = false;
-
-                var canvas = scene.getCanvas();
-                var x = canvas.clientWidth * 0.5;
-                var y = canvas.clientHeight * 0.5;
-
-                pick(new Cesium.Cartesian2(x, y));
-            }
+            onFrameChanged(scene, frame);
         });
 
         if (getQueryParameters().leap === 'true') {
