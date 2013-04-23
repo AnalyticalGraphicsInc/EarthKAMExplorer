@@ -3,57 +3,55 @@ define(['require'], function(require) {
     "use strict";
     /*global Cesium*/
 
-    var firstValidFrame;
-    //var pickGesture = false;
 
-    function map(value, inputMin, inputMax, outputMin, outputMax){
-        var outVal = ((value - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin);
-        if(outVal >  outputMax){
-            outVal = outputMax;
+    var width = 600.0 * 100.0;
+    var height = 600.0 * 100.0;
+
+    var radius = Cesium.Ellipsoid.WGS84.getMaximumRadius();
+    var rotateFactor = 1.0 / radius;
+    var rotateRateRangeAdjustment = radius;
+    var maximumRotateRate = 1.77;
+    var minimumRotateRate = 1.0 / 5000.0;
+    var maximumMovementRatio = 0.1;
+
+    function rotate(scene, x, y) {
+        var camera = scene.getCamera();
+        var controller = camera.controller;
+
+        var rho = camera.position.magnitude();
+        var rotateRate = rotateFactor * (rho - rotateRateRangeAdjustment);
+
+        if (rotateRate > maximumRotateRate) {
+            rotateRate = maximumRotateRate;
         }
-        if(outVal <  outputMin){
-            outVal = outputMin;
+
+        if (rotateRate < minimumRotateRate) {
+            rotateRate = minimumRotateRate;
         }
-        return outVal;
+
+        var phiWindowRatio = x / width;
+        var thetaWindowRatio = y / height;
+        phiWindowRatio = Math.min(phiWindowRatio, maximumMovementRatio);
+        thetaWindowRatio = Math.min(thetaWindowRatio, maximumMovementRatio);
+
+        var deltaPhi = rotateRate * phiWindowRatio * Math.PI * 2.0;
+        var deltaTheta = rotateRate * thetaWindowRatio * Math.PI;
+
+        controller.rotateRight(deltaPhi);
+        controller.rotateUp(deltaTheta);
     }
 
+    var firstFrame;
+
     function onFrameChanged(scene, frame) {
-        var camera = scene.getCamera();
-
         if (frame.valid && frame.hands.length > 0) {
-          if (typeof firstValidFrame === 'undefined') {
-              firstValidFrame = frame;
+          if (typeof firstFrame === 'undefined') {
+              firstFrame = frame;
           }
-          var translation = firstValidFrame.translation(frame);
 
-          //assign rotation coordinates
-          var rotateX = translation[0];
-          var rotateY = -map(translation[1], -300, 300, 1, 179);
-          var zoom = translation[2];
-
-          var cameraRadius = camera.position.magnitude() - zoom * 100.0;
-
-          //adjust 3D spherical coordinates of the camera
-          camera.position.x = cameraRadius * Math.sin(rotateY * Math.PI/180) * Math.cos(rotateX * Math.PI/180);
-          camera.position.y = cameraRadius * Math.sin(rotateY * Math.PI/180) * Math.sin(rotateX * Math.PI/180);
-          camera.position.z = cameraRadius * Math.cos(rotateY * Math.PI/180);
-
-          /*
-          var gestures = frame.gestures;
-          var length = frame.gestures.length;
-          if (length > 0) {
-              for (var i = 0; i < length; ++i) {
-                  if (gestures[i].type === 'keyTap') {
-                      pickGesture = true;
-                  }
-              }
-          }
-          */
+          var translation = firstFrame.translation(frame);
+          rotate(scene, translation[0], translation[1]);
         }
-
-        var p = camera.position.negate().normalize();
-        var up = Cesium.Cartesian3.cross(p, Cesium.Cartesian3.UNIT_Z).cross(p);
-        camera.controller.lookAt(camera.position, Cesium.Cartesian3.ZERO, up);
     }
 
     return onFrameChanged;
