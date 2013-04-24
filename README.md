@@ -29,6 +29,10 @@ EarthKAM Explorer was created in a weekend by developers from <a href="http://ww
 <img src="doc/team.jpg" width="600" />
 </p>
 
+<p align="center">
+<img src="doc/team2.jpg" width="600" />
+</p>
+
 Building EarthKAM Explorer
 --------------------------
 * Clone this repo.
