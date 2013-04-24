@@ -1,5 +1,6 @@
 ﻿using CesiumLanguageWriter;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -86,6 +87,23 @@ namespace csv2Czml
             }
         }
 
+        static void writeJsonArray(StringBuilder output, string propertyName, List<string> items)
+        {
+            output.Append("\"");
+            output.Append(propertyName);
+            output.Append("\":");
+            output.Append("[");
+            for (int i = 0; i < items.Count; i++)
+            {
+                output.Append("\"");
+                output.Append(items[i]);
+                output.Append("\"");
+                if (i < items.Count - 1)
+                    output.Append(",");
+            }
+            output.Append("]");
+        }
+
         static public void writeJson()
         {
             var files = new[]{
@@ -98,81 +116,70 @@ namespace csv2Czml
                 @"Data\ISS11_04_image_data.csv"
                 };
 
-            StringBuilder output = new StringBuilder();
-            output.Append("[");
+            List<string> ID = new List<string>();
+            List<string> Time = new List<string>();
+            List<string> Mission = new List<string>();
+            List<string> School = new List<string>();
+            List<string> ImageUrl = new List<string>();
+            List<string> LensSize = new List<string>();
+            List<string> OrbitNumber = new List<string>();
+            List<string> FrameWidth = new List<string>();
+            List<string> FrameHeight = new List<string>();
+            List<string> Page = new List<string>();
+            List<string> CZML = new List<string>();
+
             foreach (var file in files)
             {
                 string[] lines = File.ReadAllLines(file);
 
                 for (int i = 1; i < lines.Length; i++)
                 {
-                    output.AppendLine();
-                    output.Append("{");
-                    output.AppendLine();
                     string line = lines[i];
                     string[] tokens = line.Split(new[] { ',' });
                     for (int q = 0; q < tokens.Length; q++)
                     {
                         tokens[q] = tokens[q].Trim('"').Trim().Replace("\"", "\\\"");
                     }
-                    output.Append("\"ID\":");
-                    output.Append(tokens[0]);
-                    output.Append(",");
-                    output.AppendLine();
 
-                    output.Append("\"Time\":\"");
-                    output.Append(GregorianDate.Parse(tokens[17]).ToIso8601String(Iso8601Format.Compact));
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"Mission\":\"");
-                    output.Append(tokens[18]);
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"School\":\"");
-                    output.Append(tokens[23]);
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"ImageUrl\":\"");
-                    output.Append(tokens[21].Split(new[] { '=' })[2]);
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"LensSize\":\"");
-                    output.Append(tokens[14]);
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"OrbitNumber\":\"");
-                    output.Append(tokens[19]);
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"FrameWidth\":\"");
-                    output.Append(tokens[15]);
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"FrameHeight\":\"");
-                    output.Append(tokens[16]);
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"Page\":\"");
-                    output.Append(tokens[20].Split(new[] { '=' })[1]);
-                    output.Append("\",");
-                    output.AppendLine();
-
-                    output.Append("\"CZML\":\"");
-                    output.Append(Path.GetFileNameWithoutExtension(file) + ".czml\"");
-                    output.AppendLine();
-                    output.Append("},");
+                    ID.Add(tokens[0]);
+                    Time.Add(GregorianDate.Parse(tokens[17]).ToIso8601String(Iso8601Format.Compact));
+                    Mission.Add(tokens[18]);
+                    School.Add(tokens[23]);
+                    ImageUrl.Add(tokens[21].Split(new[] { '=' })[2]);
+                    LensSize.Add(tokens[14]);
+                    OrbitNumber.Add(tokens[19]);
+                    FrameWidth.Add(tokens[15]);
+                    FrameHeight.Add(tokens[16]);
+                    Page.Add(tokens[20].Split(new[] { '=' })[1]);
+                    CZML.Add(Path.GetFileNameWithoutExtension(file) + ".czml");
                 }
             }
-            output.Append("]");
-            output.Replace(",]", "]");
+
+            StringBuilder output = new StringBuilder();
+            output.AppendLine("{");
+            writeJsonArray(output, "ID", ID);
+            output.AppendLine(",");
+            writeJsonArray(output, "Time", Time);
+            output.AppendLine(",");
+            writeJsonArray(output, "Mission", Mission);
+            output.AppendLine(",");
+            writeJsonArray(output, "School", School);
+            output.AppendLine(",");
+            writeJsonArray(output, "ImageUrl", ImageUrl);
+            output.AppendLine(",");
+            writeJsonArray(output, "LensSize", LensSize);
+            output.AppendLine(",");
+            writeJsonArray(output, "OrbitNumber", OrbitNumber);
+            output.AppendLine(",");
+            writeJsonArray(output, "FrameWidth", FrameWidth);
+            output.AppendLine(",");
+            writeJsonArray(output, "FrameHeight", FrameHeight);
+            output.AppendLine(",");
+            writeJsonArray(output, "Page", Page);
+            output.AppendLine(",");
+            writeJsonArray(output, "CZML", CZML);
+            output.AppendLine();
+            output.AppendLine("}");
             File.WriteAllText("missions.json", output.ToString());
         }
 

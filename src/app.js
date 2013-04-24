@@ -10,34 +10,38 @@ define(function(require) {
     var getQueryParameters = require('./getQueryParameters');
     var onFrameChanged = require('./onFrameChanged');
 
-    var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
+    var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'),
+            function(error) {
+        widget._setLoading(false);
+        console.error(error);
+        window.alert(error);
+    });
 
     var missionIndexPromise = missionDataPromise.then(function(data) {
         var index = {};
-        for ( var i = 0, len = data.length; i < len; ++i) {
-            var datum = data[i];
+        var times = data.Time;
+        for ( var i = 0, len = times.length; i < len; ++i) {
+            times[i] = Cesium.JulianDate.fromIso8601(times[i]);
 
-            datum.Time = Cesium.JulianDate.fromIso8601(datum.Time);
-
-            index[datum.ID] = datum;
+            index[data.ID[i]] = {
+                ID : data.ID[i],
+                Time : data.Time[i],
+                Mission : data.Mission[i],
+                School : data.School[i],
+                ImageUrl : data.ImageUrl[i],
+                LensSize : data.LensSize[i],
+                OrbitNumber : data.OrbitNumber[i],
+                FrameWidth : data.FrameWidth[i],
+                FrameHeight : data.FrameHeight[i],
+                Page : data.Page[i],
+                CZML : data.CZML[i]
+            };
         }
         return index;
     });
 
     var gridDataPromise = missionDataPromise.then(function(data) {
-        var idData = new Array(data.length);
-        var timeData = new Array(data.length);
-        var missionData = new Array(data.length);
-        var schoolData = new Array(data.length);
-        var gridData = [idData, timeData, missionData, schoolData];
-        for ( var i = 0, len = data.length; i < len; ++i) {
-            var datum = data[i];
-            idData[i] = datum.ID;
-            timeData[i] = datum.Time;
-            missionData[i] = datum.Mission;
-            schoolData[i] = datum.School;
-        }
-        return gridData;
+        return [data.ID, data.Time, data.Mission, data.School];
     });
 
     return function() {
@@ -296,15 +300,14 @@ define(function(require) {
         var missions2CzmlNamePromise = missionDataPromise.then(function(data) {
             var firstTime = true;
             var index = {};
-            for ( var i = 0, len = data.length; i < len; ++i) {
-                var datum = data[i];
-                if (typeof index[datum.Mission] === 'undefined') {
-                    var value = datum.CZML.slice(0, datum.CZML.length - 5);
+            for ( var i = 0, len = data.Mission.length; i < len; ++i) {
+                if (typeof index[data.Mission[i]] === 'undefined') {
+                    var value = data.CZML[i].slice(0, data.CZML[i].length - 5);
                     var option = document.createElement("option");
-                    option.text = datum.Mission;
+                    option.text = data.Mission[i];
                     option.value = value;
                     missionSelect.add(option, null);
-                    index[datum.Mission] = value;
+                    index[data.Mission[i]] = value;
                     if (firstTime) {
                         firstTime = false;
                         loadCzml(value);
