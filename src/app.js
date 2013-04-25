@@ -8,14 +8,10 @@ define(function(require) {
     var createFlyToExtentAnimation = require('./createFlyToExtentAnimation');
     var createImageryProviderViewModels = require('./createImageryProviderViewModels');
     var getQueryParameters = require('./getQueryParameters');
+    var Grid = require('./datagrid');
     var onFrameChanged = require('./onFrameChanged');
 
-    var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'),
-            function(error) {
-        widget._setLoading(false);
-        console.error(error);
-        window.alert(error);
-    });
+    var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
 
     var missionIndexPromise = missionDataPromise.then(function(data) {
         var index = {};
@@ -40,11 +36,9 @@ define(function(require) {
         return index;
     });
 
-    var gridDataPromise = missionDataPromise.then(function(data) {
-        return [data.ID, data.Time, data.Mission, data.School];
-    });
-
     return function() {
+        Grid.Init(selectImage);
+
         var widget = new Cesium.CesiumWidget('cesiumContainer');
         var centralBody = widget.centralBody;
 
@@ -155,6 +149,21 @@ define(function(require) {
             });
         }
 
+        function loadMissionToGrid(mission) {
+            Grid.Maximize(); //Must maximize to prevent grid from re-drawing weirdly.
+            var jsonUrl = require.toUrl('../Assets/JSON/' + mission + '.json');
+            Cesium.loadJson(jsonUrl).then(function(data) {
+                var gridData = new Array(data.length);
+                for ( var i = 0, len = data.length; i < len; ++i) {
+                    var datum = data[i];
+                    var value = datum.Time;
+                    var y = value.slice(0, 4) + '-' + value.slice(4, 6) + '-' + value.slice(6, 8) + ' ' + value.slice(9,11) + ':' + value.slice(11,13);
+                    gridData[i] = [datum.ID, y, datum.Mission, datum.School];
+                }
+                Grid.LoadData(gridData);
+            });
+        }
+
         clock.onTick.addEventListener(function(clock) {
             if (typeof viewFromTo !== 'undefined') {
                 viewFromTo.update(clock.currentTime);
@@ -262,6 +271,7 @@ define(function(require) {
                     for ( var i = 0, length = polyObjects.length; i < length; i++) {
                         if (polyObjects[i]._polygonVisualizerIndex === index) {
                             selectImage(polyObjects[i].id);
+                            Grid.ClearSelection();
                         }
                     }
                 }
@@ -294,6 +304,7 @@ define(function(require) {
         missionSelect.addEventListener('change', function() {
             var selected = missionSelect.item(missionSelect.selectedIndex);
             loadCzml(selected.value);
+            loadMissionToGrid(selected.value);
         });
 
 
@@ -311,6 +322,7 @@ define(function(require) {
                     if (firstTime) {
                         firstTime = false;
                         loadCzml(value);
+                        loadMissionToGrid(value);
                     }
                 }
             }

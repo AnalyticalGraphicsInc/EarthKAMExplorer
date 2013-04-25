@@ -1,5 +1,8 @@
 @import url(Cesium/Widgets/CesiumWidget/CesiumWidget.css);
 @import url(Cesium/Widgets/widgets.css);
+@import url(jQuery/css/jquery.dataTables_themeroller.css);
+@import url(jQuery/css/TableTools.css);
+@import url(http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css);
 
 body {
 	padding: 0;
@@ -18,16 +21,27 @@ body {
 	right: 0;
 }
 
+.minimized {
+    height: 36px;
+    overflow-y: hidden;
+    width: 43px;
+}
+
 .cesium-widget-logo {
 	bottom: 30px;
 	left: 174px;
 }
 
+.topLeft {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    width: 270px;
+    font-size: 10px;
+}
+
 #missionSelect {
-	position: absolute;
-	top: 0;
-	left: 0;
-	z-index: 999;
 }
 
 #animationContainer {
