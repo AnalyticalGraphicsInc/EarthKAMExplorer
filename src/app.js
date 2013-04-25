@@ -7,18 +7,31 @@ define(function(require) {
     var computeRotation = require('./computeRotation');
     var createFlyToExtentAnimation = require('./createFlyToExtentAnimation');
     var createImageryProviderViewModels = require('./createImageryProviderViewModels');
+    var getQueryParameters = require('./getQueryParameters');
+    var Grid = require('./datagrid');
+    var onFrameChanged = require('./onFrameChanged');
 
-    var getQueryParameters = require('./getQueryParameters');    var Grid = require('./datagrid');
     var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
 
     var missionIndexPromise = missionDataPromise.then(function(data) {
         var index = {};
-        for ( var i = 0, len = data.length; i < len; ++i) {
-            var datum = data[i];
+        var times = data.Time;
+        for ( var i = 0, len = times.length; i < len; ++i) {
+            times[i] = Cesium.JulianDate.fromIso8601(times[i]);
 
-            datum.Time = Cesium.JulianDate.fromIso8601(datum.Time);
-
-            index[datum.ID] = datum;
+            index[data.ID[i]] = {
+                ID : data.ID[i],
+                Time : data.Time[i],
+                Mission : data.Mission[i],
+                School : data.School[i],
+                ImageUrl : data.ImageUrl[i],
+                LensSize : data.LensSize[i],
+                OrbitNumber : data.OrbitNumber[i],
+                FrameWidth : data.FrameWidth[i],
+                FrameHeight : data.FrameHeight[i],
+                Page : data.Page[i],
+                CZML : data.CZML[i]
+            };
         }
         return index;
     });
@@ -298,15 +311,14 @@ define(function(require) {
         var missions2CzmlNamePromise = missionDataPromise.then(function(data) {
             var firstTime = true;
             var index = {};
-            for ( var i = 0, len = data.length; i < len; ++i) {
-                var datum = data[i];
-                if (typeof index[datum.Mission] === 'undefined') {
-                    var value = datum.CZML.slice(0, datum.CZML.length - 5);
+            for ( var i = 0, len = data.Mission.length; i < len; ++i) {
+                if (typeof index[data.Mission[i]] === 'undefined') {
+                    var value = data.CZML[i].slice(0, data.CZML[i].length - 5);
                     var option = document.createElement("option");
-                    option.text = datum.Mission;
+                    option.text = data.Mission[i];
                     option.value = value;
                     missionSelect.add(option, null);
-                    index[datum.Mission] = value;
+                    index[data.Mission[i]] = value;
                     if (firstTime) {
                         firstTime = false;
                         loadCzml(value);
@@ -317,66 +329,9 @@ define(function(require) {
             return index;
         });
 
-        var firstValidFrame;
-        var pickGesture = false;
-
-        function map(value, inputMin, inputMax, outputMin, outputMax){
-            var outVal = ((value - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin);
-            if(outVal >  outputMax){
-                outVal = outputMax;
-            }
-            if(outVal <  outputMin){
-                outVal = outputMin;
-            }
-            return outVal;
-        }
-
         var controller = new Leap.Controller({enableGestures: true});
         controller.on('frame', function(frame) {
-            var camera = scene.getCamera();
-
-            if (frame.valid && frame.hands.length > 0) {
-              if (typeof firstValidFrame === 'undefined') {
-                  firstValidFrame = frame;
-              }
-              var translation = firstValidFrame.translation(frame);
-
-              //assign rotation coordinates
-              var rotateX = translation[0];
-              var rotateY = -map(translation[1], -300, 300, 1, 179);
-              var zoom = translation[2];
-
-              var cameraRadius = camera.position.magnitude() - zoom * 100.0;
-
-              //adjust 3D spherical coordinates of the camera
-              camera.position.x = cameraRadius * Math.sin(rotateY * Math.PI/180) * Math.cos(rotateX * Math.PI/180);
-              camera.position.y = cameraRadius * Math.sin(rotateY * Math.PI/180) * Math.sin(rotateX * Math.PI/180);
-              camera.position.z = cameraRadius * Math.cos(rotateY * Math.PI/180);
-
-              var gestures = frame.gestures;
-              var length = frame.gestures.length;
-              if (length > 0) {
-                  for (var i = 0; i < length; ++i) {
-                      if (gestures[i].type === 'keyTap') {
-                          pickGesture = true;
-                      }
-                  }
-              }
-            }
-
-            var p = camera.position.negate().normalize();
-            var up = Cesium.Cartesian3.cross(p, Cesium.Cartesian3.UNIT_Z).cross(p);
-            camera.controller.lookAt(camera.position, Cesium.Cartesian3.ZERO, up);
-
-            if (pickGesture) {
-                pickGesture = false;
-
-                var canvas = scene.getCanvas();
-                var x = canvas.clientWidth * 0.5;
-                var y = canvas.clientHeight * 0.5;
-
-                pick(new Cesium.Cartesian2(x, y));
-            }
+            onFrameChanged(scene, frame);
         });
 
         if (getQueryParameters().leap === 'true') {
