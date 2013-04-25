@@ -9,7 +9,8 @@ requirejs.config({
     },
     shim: {
         TableTools: {
-            deps: ['jquery', 'dataTables']
+            deps: ['jquery', 'dataTables'],
+            exports: 'TableTools'
         }
     }
 });

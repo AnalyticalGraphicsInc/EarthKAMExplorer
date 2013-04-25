@@ -7,7 +7,7 @@ define(function(require) {
     var computeRotation = require('./computeRotation');
     var createFlyToExtentAnimation = require('./createFlyToExtentAnimation');
     var createImageryProviderViewModels = require('./createImageryProviderViewModels');
-    var createGrid = require('./datagrid');
+    var Grid = require('./datagrid');
 
     var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
 
@@ -24,15 +24,7 @@ define(function(require) {
     });
 
     return function() {
-        var gridDataPromise = missionDataPromise.then(function(data) {
-            var gridData = new Array(data.length);
-            for ( var i = 0, len = data.length; i < len; ++i) {
-                var datum = data[i];
-                gridData[i] = [datum.ID, datum.Time.toIso8601(), datum.Mission, datum.School];
-            }
-            createGrid(gridData);
-            return gridData;
-        });
+        Grid.Init(selectImage);
 
         var widget = new Cesium.CesiumWidget('cesiumContainer');
         var centralBody = widget.centralBody;
@@ -144,6 +136,21 @@ define(function(require) {
             });
         }
 
+        function loadMissionToGrid(mission) {
+            Grid.Maximize(); //Must maximize to prevent grid from re-drawing weirdly.
+            var jsonUrl = require.toUrl('../Assets/JSON/' + mission + '.json');
+            Cesium.loadJson(jsonUrl).then(function(data) {
+                var gridData = new Array(data.length);
+                for ( var i = 0, len = data.length; i < len; ++i) {
+                    var datum = data[i];
+                    var value = datum.Time;
+                    var y = value.slice(0, 4) + '-' + value.slice(4, 6) + '-' + value.slice(6, 8) + ' ' + value.slice(9,11) + ':' + value.slice(11,13);
+                    gridData[i] = [datum.ID, y, datum.Mission, datum.School];
+                }
+                Grid.LoadData(gridData);
+            });
+        }
+
         clock.onTick.addEventListener(function(clock) {
             if (typeof viewFromTo !== 'undefined') {
                 viewFromTo.update(clock.currentTime);
@@ -233,6 +240,7 @@ define(function(require) {
                     for ( var i = 0, length = polyObjects.length; i < length; i++) {
                         if (polyObjects[i]._polygonVisualizerIndex === index) {
                             selectImage(polyObjects[i].id);
+                            Grid.ClearSelection();
                         }
                     }
                 }
@@ -243,6 +251,7 @@ define(function(require) {
         missionSelect.addEventListener('change', function() {
             var selected = missionSelect.item(missionSelect.selectedIndex);
             loadCzml(selected.value);
+            loadMissionToGrid(selected.value);
         });
 
         var missions2CzmlNamePromise = missionDataPromise.then(function(data) {
@@ -260,6 +269,7 @@ define(function(require) {
                     if (firstTime) {
                         firstTime = false;
                         loadCzml(value);
+                        loadMissionToGrid(value);
                     }
                 }
             }

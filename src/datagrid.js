@@ -1,11 +1,10 @@
 /*global define*/
 define(['TableTools'], function(TableTools) {
     "use strict";
-
-    var createGrid = function(ISS_Data) {
+    var Grid = {};
+    Grid.Init = function(selectImage) {
         $('#grid_search').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="example"></table>' );
         $('#example').dataTable( {
-            "aaData": ISS_Data,
             "bJQueryUI": true,
             "bLengthChange": false,
             "bScrollInfinite": true,
@@ -15,34 +14,60 @@ define(['TableTools'], function(TableTools) {
             "sDom": '<"H"Tfr>t<"F"ip>',
             "oTableTools": {
                 "sRowSelect": "single",
+                "fnRowSelected": function ( nodes ) {
+                    var rowData = TableTools.fnGetInstance( 'example' ).fnGetSelected();
+                    var cellValue = $('#example').dataTable().fnGetData(rowData[0], 0);
+                    selectImage(cellValue);
+                },
                 "aButtons": [{
                     "sExtends": "text",
                     "sButtonText": '<img src="/jQuery/css/down.png"/>',
                     "sButtonClass" : "minus",
-                    "fnClick": function(nButton){
-                        $('#grid_search').toggleClass('minimized');
-
-                        if (nButton.classList[3] === 'minus') {
-                            nButton.innerHTML = '<span><img src="/jQuery/css/up.png"/></span>';
-                            $('#example_filter').css('display', 'none');
-                        } else {
-                            nButton.innerHTML = '<span><img src="/jQuery/css/down.png"/></span>';
-                            $('#example_filter').css('display', 'block');
-                        }
-                        $('#ToolTables_example_0').toggleClass('plus').toggleClass('minus');
-                        $('#ToolTables_example_0').parent().parent().toggleClass('ui-corner-bl').toggleClass('ui-corner-br');
+                    "fnClick": function(){
+                        Grid.ToggleMinimize();
                     }
                 }]
             },
             "aoColumns": [
                 { "sTitle": "ID", "bVisible": false},
                 { "sTitle": "Time" },
-                { "sTitle": "Mission" },
+                { "sTitle": "Mission", "bVisible": false},
                 { "sTitle": "School" }
             ],
             "aaSorting": [[ 1, "desc" ]]
         } );
-    }
+    };
 
-    return createGrid;
+    Grid.Maximize = function(){
+        if ($('#ToolTables_example_0').hasClass('plus')) {
+            Grid.ToggleMinimize();
+        }
+    };
+
+    Grid.ToggleMinimize = function(){
+        var $button = $('#ToolTables_example_0');
+        $('#grid_search').toggleClass('minimized');
+
+        if ($button.hasClass('minus')) {
+            $button[0].innerHTML = '<span><img src="/jQuery/css/up.png"/></span>';
+            $('#example_filter').css('display', 'none');
+        } else {
+            $button[0].innerHTML = '<span><img src="/jQuery/css/down.png"/></span>';
+            $('#example_filter').css('display', 'block');
+        }
+        $button.toggleClass('plus').toggleClass('minus');
+        $button.parent().parent().toggleClass('ui-corner-bl').toggleClass('ui-corner-br');
+    };
+
+    Grid.LoadData = function(Data) {
+        var oTable = $('#example').dataTable();
+        oTable.fnClearTable();
+        oTable.fnAddData(Data);
+    };
+
+    Grid.ClearSelection = function() {
+        TableTools.fnGetInstance( 'example' ).fnSelectNone();
+    };
+
+    return Grid;
 });
