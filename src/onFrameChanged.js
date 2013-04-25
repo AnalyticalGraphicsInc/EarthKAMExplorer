@@ -93,9 +93,14 @@ define(['require'], function(require) {
               firstFrame = frame;
           }
 
-          var translation = firstFrame.translation(frame);
-          rotate(scene, -translation[0], translation[1]);
-          zoom(scene, translation[2]);
+          var fingers = frame.fingers;
+          if (fingers.length === 0) {
+              firstFrame = frame;
+          } else {
+              var translation = firstFrame.translation(frame);
+              rotate(scene, -translation[0], translation[1]);
+              zoom(scene, translation[2]);
+          }
         }
     }
 
