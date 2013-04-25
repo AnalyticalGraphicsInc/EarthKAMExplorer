@@ -1,14 +1,14 @@
 /*global define*/
 define(function(require) {
     "use strict";
-    /*global Cesium*/
+    /*global Cesium,Leap*/
 
     var viewHome = require('./viewHome');
     var computeRotation = require('./computeRotation');
     var createFlyToExtentAnimation = require('./createFlyToExtentAnimation');
     var createImageryProviderViewModels = require('./createImageryProviderViewModels');
-    var Grid = require('./datagrid');
 
+    var getQueryParameters = require('./getQueryParameters');    var Grid = require('./datagrid');
     var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
 
     var missionIndexPromise = missionDataPromise.then(function(data) {
@@ -167,7 +167,38 @@ define(function(require) {
             scene.getCamera().transform = Cesium.Matrix4.IDENTITY.clone();
         }
 
+        var selectedID;
+        var mouseOverID;
+
+        function updateMetadata() {
+            var id = Cesium.defaultValue(mouseOverID, selectedID);
+            if (typeof id === 'undefined') {
+                document.getElementById('metadata').className = '';
+                return;
+            }
+
+            missionIndexPromise.then(function(missionData) {
+                var missionDatum = missionData[id];
+
+                document.getElementById('metadata').className = 'visible';
+                document.getElementById('metadataPhotoID').innerText = id;
+                document.getElementById('metadataPhotoID').href = 'http://images.earthkam.ucsd.edu/main.php?g2_itemId=' + missionDatum.Page;
+                document.getElementById('metadataSchool').innerText = missionDatum.School;
+
+                var gregorianDate = missionDatum.Time.toGregorianDate();
+                document.getElementById('metadataTime').innerText = Cesium.sprintf('%04d/%02d/%02d %02d:%02d:%02d', gregorianDate.year, gregorianDate.month, gregorianDate.day, gregorianDate.hour, gregorianDate.minute, gregorianDate.second);
+
+                document.getElementById('metadataOrbit').innerText = missionDatum.OrbitNumber;
+                document.getElementById('metadataLens').innerText = missionDatum.LensSize;
+                document.getElementById('metadataFrameWidth').innerText = missionDatum.FrameWidth;
+                document.getElementById('metadataFrameHeight').innerText = missionDatum.FrameHeight;
+            });
+        }
+
         function selectImage(id, extent) {
+            selectedID = id;
+            updateMetadata();
+
             cancelViewFromTo();
             var photoPolygon = photoObjectCollection.getObject(id);
             var positions;
@@ -191,18 +222,6 @@ define(function(require) {
                 selectedPhotoPolygon.material.uniforms.image = imageUrl;
 
                 clockViewModel.currentTime(missionDatum.Time);
-
-                document.getElementById('metadata').className = 'visible';
-                document.getElementById('metadataPhotoID').innerText = id;
-                document.getElementById('metadataSchool').innerText = missionDatum.School;
-
-                var gregorianDate = missionDatum.Time.toGregorianDate();
-                document.getElementById('metadataTime').innerText = Cesium.sprintf('%04d/%02d/%02d %02d:%02d:%02d', gregorianDate.year, gregorianDate.month, gregorianDate.day, gregorianDate.hour, gregorianDate.minute, gregorianDate.second);
-
-                document.getElementById('metadataOrbit').innerText = missionDatum.OrbitNumber;
-                document.getElementById('metadataLens').innerText = missionDatum.LensSize;
-                document.getElementById('metadataFrameWidth').innerText = missionDatum.FrameWidth;
-                document.getElementById('metadataFrameHeight').innerText = missionDatum.FrameHeight;
             });
         }
 
@@ -222,10 +241,9 @@ define(function(require) {
             return new Cesium.Extent(minLon, minLat, maxLon, maxLat);
         }
 
-		var viewFromTo;
-        var handler = new Cesium.ScreenSpaceEventHandler(scene.getCanvas());
-        handler.setInputAction(function(movement) {
-            var pickedObject = scene.pick(movement.position);
+        var viewFromTo;
+        function pick(coordinates) {
+            var pickedObject = scene.pick(coordinates);
             if (typeof pickedObject !== 'undefined') {
                 var dynamicObject = pickedObject.dynamicObject;
                 if (typeof dynamicObject !== 'undefined') {
@@ -234,7 +252,7 @@ define(function(require) {
                     }
                 }
 
-			var index = pickedObject.index;
+                var index = pickedObject.index;
                 if (typeof index !== 'undefined') {
                     var polyObjects = photoObjectCollection.getObjects();
                     for ( var i = 0, length = polyObjects.length; i < length; i++) {
@@ -245,7 +263,29 @@ define(function(require) {
                     }
                 }
             }
+        }
+
+        var handler = new Cesium.ScreenSpaceEventHandler(scene.getCanvas());
+        handler.setInputAction(function(movement) {
+            pick(movement.position);
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+        handler.setInputAction(function(movement) {
+            mouseOverID = undefined;
+            var pickedObject = scene.pick(movement.endPosition);
+            if (typeof pickedObject !== 'undefined') {
+                var index = pickedObject.index;
+                if (typeof index !== 'undefined') {
+                    var polyObjects = photoObjectCollection.getObjects();
+                    for ( var i = 0, length = polyObjects.length; i < length; i++) {
+                        if (polyObjects[i]._polygonVisualizerIndex === index) {
+                            mouseOverID = polyObjects[i].id;
+                        }
+                    }
+                }
+            }
+            updateMetadata();
+        }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
         var missionSelect = document.getElementById("missionSelect");
         missionSelect.addEventListener('change', function() {
@@ -253,6 +293,7 @@ define(function(require) {
             loadCzml(selected.value);
             loadMissionToGrid(selected.value);
         });
+
 
         var missions2CzmlNamePromise = missionDataPromise.then(function(data) {
             var firstTime = true;
@@ -275,5 +316,71 @@ define(function(require) {
             }
             return index;
         });
+
+        var firstValidFrame;
+        var pickGesture = false;
+
+        function map(value, inputMin, inputMax, outputMin, outputMax){
+            var outVal = ((value - inputMin) / (inputMax - inputMin) * (outputMax - outputMin) + outputMin);
+            if(outVal >  outputMax){
+                outVal = outputMax;
+            }
+            if(outVal <  outputMin){
+                outVal = outputMin;
+            }
+            return outVal;
+        }
+
+        var controller = new Leap.Controller({enableGestures: true});
+        controller.on('frame', function(frame) {
+            var camera = scene.getCamera();
+
+            if (frame.valid && frame.hands.length > 0) {
+              if (typeof firstValidFrame === 'undefined') {
+                  firstValidFrame = frame;
+              }
+              var translation = firstValidFrame.translation(frame);
+
+              //assign rotation coordinates
+              var rotateX = translation[0];
+              var rotateY = -map(translation[1], -300, 300, 1, 179);
+              var zoom = translation[2];
+
+              var cameraRadius = camera.position.magnitude() - zoom * 100.0;
+
+              //adjust 3D spherical coordinates of the camera
+              camera.position.x = cameraRadius * Math.sin(rotateY * Math.PI/180) * Math.cos(rotateX * Math.PI/180);
+              camera.position.y = cameraRadius * Math.sin(rotateY * Math.PI/180) * Math.sin(rotateX * Math.PI/180);
+              camera.position.z = cameraRadius * Math.cos(rotateY * Math.PI/180);
+
+              var gestures = frame.gestures;
+              var length = frame.gestures.length;
+              if (length > 0) {
+                  for (var i = 0; i < length; ++i) {
+                      if (gestures[i].type === 'keyTap') {
+                          pickGesture = true;
+                      }
+                  }
+              }
+            }
+
+            var p = camera.position.negate().normalize();
+            var up = Cesium.Cartesian3.cross(p, Cesium.Cartesian3.UNIT_Z).cross(p);
+            camera.controller.lookAt(camera.position, Cesium.Cartesian3.ZERO, up);
+
+            if (pickGesture) {
+                pickGesture = false;
+
+                var canvas = scene.getCanvas();
+                var x = canvas.clientWidth * 0.5;
+                var y = canvas.clientHeight * 0.5;
+
+                pick(new Cesium.Cartesian2(x, y));
+            }
+        });
+
+        if (getQueryParameters().leap === 'true') {
+            controller.connect();
+        }
     };
 });

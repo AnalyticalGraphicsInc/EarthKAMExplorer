@@ -160,6 +160,11 @@ namespace csv2Czml
                     output.Append("\",");
                     output.AppendLine();
 
+                    output.Append("\"Page\":\"");
+                    output.Append(tokens[20].Split(new[] { '=' })[1]);
+                    output.Append("\",");
+                    output.AppendLine();
+
                     output.Append("\"CZML\":\"");
                     output.Append(Path.GetFileNameWithoutExtension(file) + ".czml\"");
                     output.AppendLine();
