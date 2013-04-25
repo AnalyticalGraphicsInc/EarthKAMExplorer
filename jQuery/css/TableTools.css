@@ -178,38 +178,20 @@ table.DTTT_selectable tbody tr {
 }
 
 table.dataTable tr.DTTT_selected.odd {
-	background-color: #9FAFD1;
+	background-color: #90AEFF;
 }
 
 table.dataTable tr.DTTT_selected.odd td.sorting_1 {
-	background-color: #9FAFD1;
+	background-color: #82A6FF;
 }
-
-table.dataTable tr.DTTT_selected.odd td.sorting_2 {
-	background-color: #9FAFD1;
-}
-
-table.dataTable tr.DTTT_selected.odd td.sorting_3 {
-	background-color: #9FAFD1;
-}
-
 
 table.dataTable tr.DTTT_selected.even {
-	background-color: #B0BED9;
+	background-color: #A6B8FF;
 }
 
 table.dataTable tr.DTTT_selected.even td.sorting_1 {
-	background-color: #B0BED9;
+	background-color: #93AFFF;
 }
-
-table.dataTable tr.DTTT_selected.even td.sorting_2 {
-	background-color: #B0BED9;
-}
-
-table.dataTable tr.DTTT_selected.even td.sorting_3 {
-	background-color: #B0BED9;
-}
-
 
 /*
  * COLLECTIONS
