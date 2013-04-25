@@ -11,34 +11,9 @@ define(function(require) {
     var Grid = require('./datagrid');
     var onFrameChanged = require('./onFrameChanged');
 
-    var missionDataPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
-
-    var missionIndexPromise = missionDataPromise.then(function(data) {
-        var index = {};
-        var times = data.Time;
-        for ( var i = 0, len = times.length; i < len; ++i) {
-            times[i] = Cesium.JulianDate.fromIso8601(times[i]);
-
-            index[data.ID[i]] = {
-                ID : data.ID[i],
-                Time : data.Time[i],
-                Mission : data.Mission[i],
-                School : data.School[i],
-                ImageUrl : data.ImageUrl[i],
-                LensSize : data.LensSize[i],
-                OrbitNumber : data.OrbitNumber[i],
-                FrameWidth : data.FrameWidth[i],
-                FrameHeight : data.FrameHeight[i],
-                Page : data.Page[i],
-                CZML : data.CZML[i]
-            };
-        }
-        return index;
-    });
+    var missionsPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
 
     return function() {
-        Grid.Init(selectImage);
-
         var widget = new Cesium.CesiumWidget('cesiumContainer');
         var centralBody = widget.centralBody;
 
@@ -104,8 +79,9 @@ define(function(require) {
         var issObjectCollection = new Cesium.DynamicObjectCollection();
         var issVisualizers;
 
+        var missionIndexPromise;
         var currentMissionName;
-        function loadCzml(missionName) {
+        function loadMission(missionName) {
             if (currentMissionName === missionName) {
                 return;
             }
@@ -147,20 +123,40 @@ define(function(require) {
                     clockViewModel.synchronize();
                 }
             });
-        }
 
-        function loadMissionToGrid(mission) {
             Grid.Maximize(); //Must maximize to prevent grid from re-drawing weirdly.
-            var jsonUrl = require.toUrl('../Assets/JSON/' + mission + '.json');
-            Cesium.loadJson(jsonUrl).then(function(data) {
-                var gridData = new Array(data.length);
-                for ( var i = 0, len = data.length; i < len; ++i) {
-                    var datum = data[i];
-                    var value = datum.Time;
-                    var y = value.slice(0, 4) + '-' + value.slice(4, 6) + '-' + value.slice(6, 8) + ' ' + value.slice(9,11) + ':' + value.slice(11,13);
-                    gridData[i] = [datum.ID, y, datum.Mission, datum.School];
+            var jsonUrl = require.toUrl('../Assets/JSON/' + missionName + '.json');
+            var jsonPromise = Cesium.loadJson(jsonUrl);
+
+            missionIndexPromise = jsonPromise.then(function(data) {
+                var times = data.Time;
+                var index = {};
+                var gridData = new Array(times.length);
+                for ( var i = 0, len = times.length; i < len; ++i) {
+                    var time = Cesium.JulianDate.fromIso8601(times[i]);
+
+                    var gregorianDate = time.toGregorianDate();
+                    var timeString = Cesium.sprintf('%04d/%02d/%02d %02d:%02d:%02d', gregorianDate.year, gregorianDate.month, gregorianDate.day, gregorianDate.hour, gregorianDate.minute, gregorianDate.second);
+
+                    var id = data.ID[i];
+                    var school = data.School[i];
+                    gridData[i] = [id, timeString, school];
+
+                    index[data.ID[i]] = {
+                        ID : id,
+                        Time : time,
+                        TimeString : timeString,
+                        School : school,
+                        ImageUrl : data.ImageUrl[i],
+                        LensSize : data.LensSize[i],
+                        OrbitNumber : data.OrbitNumber[i],
+                        FrameWidth : data.FrameWidth[i],
+                        FrameHeight : data.FrameHeight[i],
+                        Page : data.Page[i]
+                    };
                 }
                 Grid.LoadData(gridData);
+                return index;
             });
         }
 
@@ -197,10 +193,7 @@ define(function(require) {
                 document.getElementById('metadataPhotoID').innerText = id;
                 document.getElementById('metadataPhotoID').href = 'http://images.earthkam.ucsd.edu/main.php?g2_itemId=' + missionDatum.Page;
                 document.getElementById('metadataSchool').innerText = missionDatum.School;
-
-                var gregorianDate = missionDatum.Time.toGregorianDate();
-                document.getElementById('metadataTime').innerText = Cesium.sprintf('%04d/%02d/%02d %02d:%02d:%02d', gregorianDate.year, gregorianDate.month, gregorianDate.day, gregorianDate.hour, gregorianDate.minute, gregorianDate.second);
-
+                document.getElementById('metadataTime').innerText = missionDatum.TimeString;
                 document.getElementById('metadataOrbit').innerText = missionDatum.OrbitNumber;
                 document.getElementById('metadataLens').innerText = missionDatum.LensSize;
                 document.getElementById('metadataFrameWidth').innerText = missionDatum.FrameWidth;
@@ -303,31 +296,22 @@ define(function(require) {
         var missionSelect = document.getElementById("missionSelect");
         missionSelect.addEventListener('change', function() {
             var selected = missionSelect.item(missionSelect.selectedIndex);
-            loadCzml(selected.value);
-            loadMissionToGrid(selected.value);
+            loadMission(selected.value);
         });
+        missionsPromise.then(function(missionsData) {
+            for ( var i = 0, len = missionsData.length; i < len; ++i) {
+                var option = document.createElement("option");
+                option.text = missionsData[i].name;
+                option.value = missionsData[i].file;
+                missionSelect.add(option, null);
 
-
-        var missions2CzmlNamePromise = missionDataPromise.then(function(data) {
-            var firstTime = true;
-            var index = {};
-            for ( var i = 0, len = data.Mission.length; i < len; ++i) {
-                if (typeof index[data.Mission[i]] === 'undefined') {
-                    var value = data.CZML[i].slice(0, data.CZML[i].length - 5);
-                    var option = document.createElement("option");
-                    option.text = data.Mission[i];
-                    option.value = value;
-                    missionSelect.add(option, null);
-                    index[data.Mission[i]] = value;
-                    if (firstTime) {
-                        firstTime = false;
-                        loadCzml(value);
-                        loadMissionToGrid(value);
-                    }
+                if (i === 0) {
+                    loadMission(option.value);
                 }
             }
-            return index;
         });
+
+        Grid.Init(selectImage);
 
         var controller = new Leap.Controller({enableGestures: true});
         controller.on('frame', function(frame) {

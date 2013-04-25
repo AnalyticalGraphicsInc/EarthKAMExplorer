@@ -1,50 +1,52 @@
 /*global define*/
 define(['TableTools'], function(TableTools) {
     "use strict";
+    /*global $*/
     var Grid = {};
     Grid.Init = function(selectImage) {
-        $('#grid_search').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="example"></table>' );
-        $('#example').dataTable( {
-            "bJQueryUI": true,
-            "bLengthChange": false,
-            "bScrollInfinite": true,
-            "bScrollCollapse": true,
-            "sScrollY": "200px",
-            "bInfo": false,
-            "sDom": '<"H"Tfr>t<"F"ip>',
-            "oTableTools": {
-                "sRowSelect": "single",
-                "fnRowSelected": function ( nodes ) {
-                    var rowData = TableTools.fnGetInstance( 'example' ).fnGetSelected();
+        $('#example').dataTable({
+            "bJQueryUI" : true,
+            "bLengthChange" : false,
+            "bScrollInfinite" : true,
+            "bScrollCollapse" : true,
+            "sScrollY" : "200px",
+            "bInfo" : false,
+            "sDom" : '<"H"Tfr>t<"F">',
+            "oTableTools" : {
+                "sRowSelect" : "single",
+                "fnRowSelected" : function(nodes) {
+                    var rowData = TableTools.fnGetInstance('example').fnGetSelected();
                     var cellValue = $('#example').dataTable().fnGetData(rowData[0], 0);
                     selectImage(cellValue);
                 },
-                "aButtons": [{
-                    "sExtends": "text",
-                    "sButtonText": '<img src="/jQuery/css/down.png"/>',
+                "aButtons" : [{
+                    "sExtends" : "text",
+                    "sButtonText" : '<img src="/jQuery/css/down.png"/>',
                     "sButtonClass" : "minus",
-                    "fnClick": function(){
+                    "fnClick" : function() {
                         Grid.ToggleMinimize();
                     }
                 }]
             },
-            "aoColumns": [
-                { "sTitle": "ID", "bVisible": false},
-                { "sTitle": "Time" },
-                { "sTitle": "Mission", "bVisible": false},
-                { "sTitle": "School" }
-            ],
-            "aaSorting": [[ 1, "desc" ]]
-        } );
+            "aoColumns" : [{
+                "sTitle" : "ID",
+                "bVisible" : false
+            }, {
+                "sTitle" : "Time"
+            }, {
+                "sTitle" : "School"
+            }],
+            "aaSorting" : [[1, "desc"]]
+        });
     };
 
-    Grid.Maximize = function(){
+    Grid.Maximize = function() {
         if ($('#ToolTables_example_0').hasClass('plus')) {
             Grid.ToggleMinimize();
         }
     };
 
-    Grid.ToggleMinimize = function(){
+    Grid.ToggleMinimize = function() {
         var $button = $('#ToolTables_example_0');
         $('#grid_search').toggleClass('minimized');
 
@@ -66,7 +68,7 @@ define(['TableTools'], function(TableTools) {
     };
 
     Grid.ClearSelection = function() {
-        TableTools.fnGetInstance( 'example' ).fnSelectNone();
+        TableTools.fnGetInstance('example').fnSelectNone();
     };
 
     return Grid;

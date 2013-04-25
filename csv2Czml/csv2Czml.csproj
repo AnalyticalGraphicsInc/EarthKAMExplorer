@@ -49,34 +49,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Assets\CSV\ISS11_04_image_data.csv">
-      <Link>Data\ISS11_04_image_data.csv</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Assets\CSV\ISS11_07_image_data.csv">
-      <Link>Data\ISS11_07_image_data.csv</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Assets\CSV\ISS11_11_image_data.csv">
-      <Link>Data\ISS11_11_image_data.csv</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Assets\CSV\ISS12_01_image_data.csv">
-      <Link>Data\ISS12_01_image_data.csv</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Assets\CSV\ISS12_07_2_image_data.csv">
-      <Link>Data\ISS12_07_2_image_data.csv</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Assets\CSV\ISS12_11_image_data.csv">
-      <Link>Data\ISS12_11_image_data.csv</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\Assets\CSV\ISS13_01_image_data.csv">
-      <Link>Data\ISS13_01_image_data.csv</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

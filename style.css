@@ -1,24 +1,30 @@
 @import url(Cesium/Widgets/CesiumWidget/CesiumWidget.css);
+
 @import url(Cesium/Widgets/widgets.css);
+
 @import url(jQuery/css/jquery.dataTables_themeroller.css);
+
 @import url(jQuery/css/TableTools.css);
-@import url(http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css);
+
+@import
+    url(http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css)
+    ;
 
 body {
-	padding: 0;
-	margin: 0;
-	overflow: hidden;
-	width: 100%;
-	height: 100%;
-	font-family: sans-serif;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    font-family: sans-serif;
 }
 
 #cesiumContainer {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 .minimized {
@@ -28,8 +34,8 @@ body {
 }
 
 .cesium-widget-logo {
-	bottom: 30px;
-	left: 174px;
+    bottom: 30px;
+    left: 174px;
 }
 
 .topLeft {
@@ -42,129 +48,138 @@ body {
 }
 
 #missionSelect {
+    
 }
 
 #animationContainer {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	padding: 0;
-	width: 169px;
-	height: 112px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0;
+    width: 169px;
+    height: 112px;
 }
 
 #timelineContainer {
-	position: absolute;
-	bottom: 0;
-	left: 169px;
-	right: 29px;
-	height: 27px;
-	padding: 0;
-	margin: 0;
-	overflow: hidden;
-	font-size: 14px;
-	border-bottom: none;
-	border-right: none;
+    position: absolute;
+    bottom: 0;
+    left: 169px;
+    right: 29px;
+    height: 27px;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 14px;
+    border-bottom: none;
+    border-right: none;
 }
 
 #fullscreenContainer {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	padding: 0;
-	width: 29px;
-	height: 29px;
-	overflow: hidden;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 0;
+    width: 29px;
+    height: 29px;
+    overflow: hidden;
 }
 
 #viewButtons {
-	display: block;
-	position: absolute;
-	top: 5px;
-	right: 5px;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	user-select: none;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
 }
 
 #viewHomeButton {
-	display: inline-block;
-	width: 32px;
-	height: 32px;
-	vertical-align: middle;
-	background-image: url(Cesium/Widgets/Images/home.svg);
-	background-repeat: no-repeat;
-	background-size: 100% 100%;
-	border-radius: 14%;
-	position: relative;
-	text-align: center;
-	color: white;
-	margin: 1px;
-	cursor: pointer;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+    background-image: url(Cesium/Widgets/Images/home.svg);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    border-radius: 14%;
+    position: relative;
+    text-align: center;
+    color: white;
+    margin: 1px;
+    cursor: pointer;
 }
 
 #viewHomeButton:hover {
-	box-shadow: 0 0 8px #fff, 0 0 8px #fff;
+    box-shadow: 0 0 8px #fff, 0 0 8px #fff;
 }
 
 #sceneModePickerContainer {
-	display: inline-block;
-	width: 32px;
-	height: 32px;
-	vertical-align: middle;
-	margin: 1px;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+    margin: 1px;
 }
 
 #baseLayerPickerContainer {
-	display: inline-block;
-	width: 32px;
-	height: 32px;
-	vertical-align: middle;
-	margin: 1px;
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+    margin: 1px;
 }
 
 .cesium-logo {
-	display: block;
-	position: absolute;
-	bottom: 32px;
-	left: 179px;
-	text-decoration: none;
-	width: 118px;
-	height: 26px;
+    display: block;
+    position: absolute;
+    bottom: 32px;
+    left: 179px;
+    text-decoration: none;
+    width: 118px;
+    height: 26px;
 }
 
 .cw-agiLogo {
-	display: block;
-	position: absolute;
-	bottom: 30px;
-	left: 300px;
-	text-decoration: none;
-	background-image: url(../Assets/AGILogo3_overlay.png);
-	background-size: 60px 30px;
-	width: 60px;
-	height: 30px;
+    display: block;
+    position: absolute;
+    bottom: 30px;
+    left: 300px;
+    text-decoration: none;
+    background-image: url(../Assets/AGILogo3_overlay.png);
+    background-size: 60px 30px;
+    width: 60px;
+    height: 30px;
 }
 
 .cw-agiLogo img {
-	border: none; 
+    border: none;
 }
 
 #metadata {
-	position: absolute;
-	bottom: 50px;
-	right: 0px;
-	width: 20em;
-	background-color: rgba(0, 0, 0, 0.5);
-	color: white;
-	padding: 0.5em;
-	border-radius: 1em;
-	display: none;
+    position: absolute;
+    bottom: 50px;
+    right: 0px;
+    width: 20em;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 0.5em;
+    border-radius: 1em;
+    display: none;
 }
 
 #metadata a {
-	color: white;
+    color: white;
 }
 
 #metadata.visible {
-	display: block;
+    display: block;
+}
+
+#grid_search {
+    width: 300px;
+}
+
+#grid_search.minimized {
+    width: 45px;
 }
