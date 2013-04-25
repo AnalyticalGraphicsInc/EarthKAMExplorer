@@ -85,23 +85,105 @@ define(['require'], function(require) {
         controller.zoomIn(distance);
     }
 
-    var firstFrame;
+    function getWindowPosition(scene, direction) {
+        direction = direction.normalize();
+
+        var camera = scene.getCamera();
+        var frustum = camera.frustum;
+
+        var near = frustum.near;
+        var t = -near / direction.z;
+        var p0 = direction.multiplyByScalar(t);
+
+        var mvp = frustum.getProjectionMatrix();
+        var viewport = new Cesium.BoundingRectangle();
+        viewport.width = scene.getCanvas().clientWidth;
+        viewport.height = scene.getCanvas().clientHeight;
+        var vpt = Cesium.Matrix4.computeViewportTransformation(viewport, 0.0, 1.0);
+
+        return Cesium.Transforms.pointToWindowCoordinates(mvp, vpt, p0);
+    }
+
+    var reticle;
+
+    function updateReticle(scene, windowPosition, show) {
+        var canvas = scene.getCanvas();
+        var canvasWidth = canvas.clientWidth;
+        var canvasHeight = canvas.clientHeight;
+
+        //windowPosition = (typeof windowPosition !== 'undefined') ? windowPosition : new Cesium.Cartesian2();
+        windowPosition = (typeof windowPosition !== 'undefined') ? windowPosition : new Cesium.Cartesian2(canvasWidth / 2, canvasHeight / 2);
+        show = Cesium.defaultValue(show, 0.0);
+
+        if (typeof reticle === 'undefined') {
+            var source =
+                'czm_material czm_getMaterial(czm_materialInput materialInput) {' +
+                '   czm_material material = czm_getDefaultMaterial(materialInput);' +
+                '   vec2 st = materialInput.st * 2.0 - 1.0;' +
+                '   float len = length(st);' +
+                '   float circle = 1.0 - smoothstep(0.75, 0.79, len) * (1.0 - smoothstep(0.81, 0.85, len));' +
+                '   float vertLine = 1.0 - (1.0 - smoothstep(0.01, 0.04, abs(st.s))) * (1.0 - smoothstep(0.96, 1.0, abs(st.t)));' +
+                '   float horizLine = 1.0 - (1.0 - smoothstep(0.01, 0.04, abs(st.t))) * (1.0 - smoothstep(0.96, 1.0, abs(st.s)));' +
+                '   float val = 1.0 - circle * horizLine * vertLine;' +
+                '   material.diffuse = color.rgb;' +
+                '   material.alpha = color.a * val * show;' +
+                '   return material;' +
+                '}';
+            var material = new Cesium.Material({
+                context : scene.getContext(),
+                fabric : {
+                    uniforms : {
+                        windowCoord : new Cesium.Cartesian2(),
+                        resolution : new Cesium.Cartesian2(),
+                        show : 1.0,
+                        color : new Cesium.Color(0.2, 1.0, 0.2, 1.0)
+                    },
+                    source : source
+                }
+            });
+            reticle = new Cesium.ViewportQuad(new Cesium.BoundingRectangle(), material);
+
+            scene.getPrimitives().add(reticle);
+        }
+
+        var reticleSize = 150.0;
+
+        reticle.rectangle.x = windowPosition.x - (reticleSize * 0.5);
+        reticle.rectangle.y = windowPosition.y - (reticleSize * 0.5);
+        reticle.rectangle.width = reticleSize;
+        reticle.rectangle.height = reticleSize;
+
+        reticle.material.uniforms.windowCoord = windowPosition;
+        reticle.material.uniforms.show = show;
+    }
+
+    var origin = new Cesium.Cartesian3(0.0, 300.0, 0.0);
 
     function onFrameChanged(scene, frame) {
+        var windowPosition;
+        var showReticle = 0.0;
+
         if (frame.valid && frame.hands.length > 0) {
-          if (typeof firstFrame === 'undefined') {
-              firstFrame = frame;
-          }
+          var handPosition = frame.hands[0].palmPosition;
+          var position = new Cesium.Cartesian3(handPosition[0], handPosition[1], handPosition[2]);
+          var translation = origin.subtract(position);
+          var moving = translation.magnitude() > 15.0;
 
           var fingers = frame.fingers;
-          if (fingers.length === 0) {
-              firstFrame = frame;
-          } else {
-              var translation = firstFrame.translation(frame);
-              rotate(scene, -translation[0], translation[1]);
-              zoom(scene, translation[2]);
+          if (fingers.length === 1) {
+              var dirArray = fingers[0].direction;
+              var direction = new Cesium.Cartesian3(dirArray[0], dirArray[1], dirArray[2]);
+              if (direction.z < 0) {
+                  windowPosition = getWindowPosition(scene, direction);
+                  showReticle = 1.0;
+              }
+          } else if (moving) {
+              rotate(scene, -translation.x, translation.y);
+              zoom(scene, translation.z);
           }
         }
+
+        updateReticle(scene, windowPosition, showReticle);
     }
 
     return onFrameChanged;
