@@ -190,14 +190,14 @@ define(function(require) {
                 var missionDatum = missionData[id];
 
                 document.getElementById('metadata').className = 'visible';
-                document.getElementById('metadataPhotoID').innerText = id;
+                document.getElementById('metadataPhotoID').textContent = id;
                 document.getElementById('metadataPhotoID').href = 'http://images.earthkam.ucsd.edu/main.php?g2_itemId=' + missionDatum.Page;
-                document.getElementById('metadataSchool').innerText = missionDatum.School;
-                document.getElementById('metadataTime').innerText = missionDatum.TimeString;
-                document.getElementById('metadataOrbit').innerText = missionDatum.OrbitNumber;
-                document.getElementById('metadataLens').innerText = missionDatum.LensSize;
-                document.getElementById('metadataFrameWidth').innerText = missionDatum.FrameWidth;
-                document.getElementById('metadataFrameHeight').innerText = missionDatum.FrameHeight;
+                document.getElementById('metadataSchool').textContent = missionDatum.School;
+                document.getElementById('metadataTime').textContent = missionDatum.TimeString;
+                document.getElementById('metadataOrbit').textContent = missionDatum.OrbitNumber;
+                document.getElementById('metadataLens').textContent = missionDatum.LensSize;
+                document.getElementById('metadataFrameWidth').textContent = missionDatum.FrameWidth;
+                document.getElementById('metadataFrameHeight').textContent = missionDatum.FrameHeight;
             });
         }
 
