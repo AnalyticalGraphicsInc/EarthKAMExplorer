@@ -16,32 +16,11 @@ define(function(require) {
     $('#splash').click(function() {
         $('#splash').addClass('hidden');
     });
-    
+
     return function() {
         var queryParams = getQueryParameters();
         var widget = new Cesium.CesiumWidget('cesiumContainer');
         var centralBody = widget.centralBody;
-
-        function createVisualizers(scene) {
-            if (queryParams.noPoly === 'true') {
-                return [new Cesium.DynamicBillboardVisualizer(scene),
-                        new Cesium.DynamicEllipsoidVisualizer(scene),
-                        new Cesium.DynamicConeVisualizer(scene),
-                        new Cesium.DynamicLabelVisualizer(scene),
-                        new Cesium.DynamicPointVisualizer(scene),
-                        new Cesium.DynamicPolygonVisualizer(scene),
-                        new Cesium.DynamicPyramidVisualizer(scene)];
-            }
-            return [new Cesium.DynamicBillboardVisualizer(scene),
-                    new Cesium.DynamicEllipsoidVisualizer(scene),
-                    new Cesium.DynamicConeVisualizer(scene),
-                    new Cesium.DynamicLabelVisualizer(scene),
-                    new Cesium.DynamicPointVisualizer(scene),
-                    new Cesium.DynamicPolygonVisualizer(scene),
-                    new Cesium.DynamicPolylineVisualizer(scene),
-                    new Cesium.DynamicPyramidVisualizer(scene),
-                    new Cesium.DynamicPathVisualizer(scene)];
-        }
 
         var terrainProvider = new Cesium.CesiumTerrainProvider({
             url : 'http://cesium.agi.com/smallterrain'
@@ -135,7 +114,7 @@ define(function(require) {
                 scene.getPrimitives().add(selectedPhotoPolygon);
 
                 Cesium.processCzml(issCzml, issObjectCollection, issUrl);
-                issVisualizers = new Cesium.VisualizerCollection(createVisualizers(scene), issObjectCollection);
+                issVisualizers = new Cesium.VisualizerCollection(Cesium.CzmlDefaults.createVisualizers(scene), issObjectCollection);
 
                 var document = issObjectCollection.getObject('document');
                 if (typeof document !== 'undefined' && typeof document.clock !== 'undefined') {
