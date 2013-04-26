@@ -315,7 +315,7 @@ define(function(require) {
 
         var controller = new Leap.Controller({enableGestures: true});
         controller.on('frame', function(frame) {
-            onFrameChanged(scene, frame);
+            onFrameChanged(scene, frame, pick);
         });
 
         if (getQueryParameters().leap === 'true') {

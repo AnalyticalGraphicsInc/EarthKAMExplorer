@@ -158,9 +158,13 @@ define(['require'], function(require) {
     }
 
     var origin = new Cesium.Cartesian3(0.0, 300.0, 0.0);
+    var lastWindowCoordinate;
 
-    function onFrameChanged(scene, frame) {
-        var windowPosition;
+    function onFrameChanged(scene, frame, pick) {
+        if (Cesium.Tween.getAll().length > 0) {
+            return;
+        }
+
         var showReticle = 0.0;
 
         if (frame.valid && frame.hands.length > 0) {
@@ -174,16 +178,33 @@ define(['require'], function(require) {
               var dirArray = fingers[0].direction;
               var direction = new Cesium.Cartesian3(dirArray[0], dirArray[1], dirArray[2]);
               if (direction.z < 0) {
-                  windowPosition = getWindowPosition(scene, direction);
+                  lastWindowCoordinate = getWindowPosition(scene, direction);
                   showReticle = 1.0;
               }
-          } else if (moving) {
+          } else if (moving && typeof lastWindowCoordinate === 'undefined') {
               rotate(scene, -translation.x, translation.y);
               zoom(scene, translation.z);
+          } else if (typeof lastWindowCoordinate !== 'undefined' && frame.gestures.length > 0){
+              var pickCoordinate = false;
+
+              var gestures = frame.gestures;
+              var length = gestures.length;
+              for (var i = 0; i < length; ++i) {
+                  if (gestures[i].type === 'circle') {
+                      pickCoordinate = true;
+                      break;
+                  }
+              }
+
+              if (pickCoordinate) {
+                  pick(lastWindowCoordinate);
+              }
+
+              lastWindowCoordinate = undefined;
           }
         }
 
-        updateReticle(scene, windowPosition, showReticle);
+        updateReticle(scene, lastWindowCoordinate, showReticle);
     }
 
     return onFrameChanged;
