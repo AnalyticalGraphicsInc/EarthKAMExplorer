@@ -1,14 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Use Chrome Frame in IE -->
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
 <title>EarthKAM Explorer</title>
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
 <script src="Cesium/Cesium.js"></script>
 <script src="leapjs/leap.min.js"></script>
 <script data-main="src/main" src="requirejs/require.js"></script>
 <link rel="stylesheet" href="style.css" media="screen">
 </head>
 <body>
+    <script>
+        CFInstall.check({
+            mode : "overlay",
+            destination : document.URL
+        });
+    </script>
     <div id="splash"><img src="/Assets/splash_nobg.png" id="kam_logo"/><img src="/Assets/splash_bg.png" id="kam_logo_bg"/></div>
 	<div id="cesiumContainer"></div>
 	<div id="viewButtons">
