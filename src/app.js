@@ -13,6 +13,10 @@ define(function(require) {
 
     var missionsPromise = Cesium.loadJson(require.toUrl('../Assets/missions.json'));
 
+    $('#splash').click(function() {
+        $('#splash').addClass('hidden');
+    });
+    
     return function() {
         var queryParams = getQueryParameters();
         var widget = new Cesium.CesiumWidget('cesiumContainer');
