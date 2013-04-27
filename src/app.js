@@ -218,8 +218,6 @@ define(function(require) {
                 extent = createExtent(positions);
             }
 
-            scene.getAnimations().add(createFlyToExtentAnimation(scene.getFrameState(), extent, ellipsoid));
-
             positions = photoPolygon.vertexPositions.getValueCartesian(clock.currentTime);
             selectedPhotoPolygon.setPositions(positions, 0.0, computeRotation(positions, ellipsoid));
             selectedPhotoPolygon.show = true;
@@ -232,7 +230,23 @@ define(function(require) {
                 imageUrl = proxy.getURL(imageUrl);
                 selectedPhotoPolygon.material.uniforms.image = imageUrl;
 
-                clockViewModel.currentTime(missionDatum.Time);
+                scene.getAnimations().add(createFlyToExtentAnimation(scene.getFrameState(), extent, ellipsoid));
+
+                var time = clockViewModel.currentTime();
+                scene.getAnimations().add({
+                    duration : 3000.0,
+                    easingFunction : Cesium.Tween.Easing.Sinusoidal.InOut,
+                    startValue : {
+                        time : 0.0
+                    },
+                    stopValue : {
+                        time : 1.0
+                    },
+                    onUpdate : function(value) {
+                        var newTime = time.addSeconds(value.time * time.getSecondsDifference(missionDatum.Time));
+                        clockViewModel.currentTime(newTime);
+                    }
+                });
             });
         }
 
