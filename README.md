@@ -1,37 +1,35 @@
-EarthKAM Explorer
-=================
+[![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/EarthKAMBanner.png)](http://cesiumspaceapp.cloudapp.net/)
 
-Use <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/" target="_blank">Firefox</a> to run EarthKAM Explorer:
+Use [Chrome](http://www.google.com/chrome/) or [Firefox](http://www.mozilla.org/en-US/firefox/new/) to run:
 
-<a href="http://cesiumspaceapp.cloudapp.net/" target="_blank"><img src="doc/run.png" /></a>
+[![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/run.png)](http://cesiumspaceapp.cloudapp.net/)
 
-EarthKAM Explorer solves the <a href="http://spaceappschallenge.org/challenge/earth-from-space/" target="_blank">Earth from Space</a> challenge for the <a href="http://spaceappschallenge.org/" target="_blank">International Space Apps Challenge 2013</a>.  EarthKAM Explorer provides web-based 3D exploration of satellite images taken by middle school students through the <a href="https://earthkam.ucsd.edu/" target="_blank">ISS EarthKAM</a> program.
+EarthKAM Explorer provides web-based 3D exploration of satellite images taken by middle school students through the [ISS EarthKAM](https://earthkam.ucsd.edu/) program.
 
-<p align="center">
-<img src="doc/iss1.jpg" width="640" />
-</p>
+![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/iss1.jpg)
 
-Select a mission to see the ISS orbit during that mission and polygons showing where all the images were taken.  Select a polygon to fly to it and see the image, ISS location at that time, and related data.
+Select a mission to see the ISS orbit during that mission and polygons showing where all the images were taken.  Select a polygon to fly to it and see the image, ISS location at that time, and related data.  Also, follow the ISS in orbit, filter by school, and post to twitter.
 
-<p align="center">
-<img src="doc/iss2.jpg" width="640" />
-</p>
+![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/iss2.jpg)
 
-EarthKAM Explorer is written in JavaScript using <a href="http://cesium.agi.com/" target="_blank">Cesium</a>, an open-source WebGL virtual globe and map, so it runs in a browser <strong>without a plugin</strong>.  It supports the <a href="https://www.leapmotion.com/" target="_blank">Leap Motion</a> controller for <strong>hand-gesture</strong> input as shown below (use this [url](http://cesiumspaceapp.cloudapp.net/?leap=true)).
+EarthKAM Explorer is written in JavaScript using [Cesium](http://cesium.agi.com/), an open-source WebGL virtual globe and map, so it runs in a browser **without a plugin**.  It supports the [Leap Motion](https://www.leapmotion.com/) controller for **hand-gesture** input as shown below (use this [url](http://cesiumspaceapp.cloudapp.net/?leap=true)).
 
-<p align="center">
-<img src="doc/leapmotion.jpg" width="400" />
-</p>
+![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/leapmotion.jpg)
 
-EarthKAM Explorer was created in a weekend by developers from <a href="http://www.agi.com/" target="_blank">Analytical Graphics, Inc</a>: <a href="https://github.com/bagnell" target="_blank">@bagnell</a>, <a href="https://github.com/hpinkos" target="_blank">@hpinkos</a>, <a href="https://twitter.com/matt_amato" target="_blank">@mramato</a>, <a href="https://twitter.com/pjcozzi" target="_blank">@pjcozzi</a>, and <a href="https://github.com/shunter" target="_blank">@shunter</a>.
+EarthKAM Explorer was created in a weekend by developers from [Analytical Graphics, Inc](http://www.agi.com/): [@bagnell](https://github.com/bagnell), [@hpinkos](https://github.com/hpinkos), [@mramato](https://twitter.com/matt_amato), [@pjcozzi](https://twitter.com/pjcozzi), and [@shunter](https://github.com/shunter).
 
-<p align="center">
-<img src="doc/team.jpg" width="600" />
-</p>
+![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/team.jpg)
 
-<p align="center">
-<img src="doc/team2.jpg" width="600" />
-</p>
+![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/team2.jpg)
+
+**Videos**
+
+* [Video for Global Judging](http://www.youtube.com/watch?v=L378jOZM8LA)
+* Our [presentation in Philadelphia](http://www.youtube.com/watch?v=zICMX6xlOD0)
+* [Using the Leap Motion controller with EarthKAM Explorer](http://www.ustream.tv/recorded/31733463)
+* [Work-in-progress on Saturday night](http://www.ustream.tv/recorded/31733621)
+
+Check out the code on [GitHub](https://github.com/AnalyticalGraphicsInc/EarthKAMExplorer)
 
 Building EarthKAM Explorer
 --------------------------
