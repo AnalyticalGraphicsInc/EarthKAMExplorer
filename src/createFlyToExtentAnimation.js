@@ -94,7 +94,7 @@ define(['require'], function(require) {
         position = new Cesium.Cartesian3();
         position.x = (northEast.x - southWest.x) * 0.5 + southWest.x;
         position.y = (northEast.y - southWest.y) * 0.5 + southWest.y;
-        position.z = Math.max((northEast.x - southWest.x) / tanTheta, (northEast.y - southWest.y) / tanPhi) * 0.5;
+        position.z = Math.abs(Math.max((northEast.x - southWest.x) / tanTheta, (northEast.y - southWest.y) / tanPhi) * 0.5);
 
         return projection.unproject(position);
     }
