@@ -182,11 +182,11 @@ define(function(require) {
                 viewFromTo = undefined;
                 var camera = scene.getCamera();
                 var mode = scene.mode;
-                if (mode === Cesium.SceneMode.SCENE2D) {
-                    camera.transform = new Cesium.Matrix4(0, 0, 1, 0,
-                                                                     1, 0, 0, 0,
-                                                                     0, 1, 0, 0,
-                                                                     0, 0, 0, 1);
+                if (mode === Cesium.SceneMode.SCENE2D || mode === Cesium.SceneMode.COLUMBUS_VIEW) {
+                    camera.transform = new Cesium.Matrix4(0.0, 0.0, 1.0, 0.0,
+                            1.0, 0.0, 0.0, 0.0,
+                            0.0, 1.0, 0.0, 0.0,
+                            0.0, 0.0, 0.0, 1.0);
                 } else if (mode === Cesium.SceneMode.SCENE3D) {
                     Cesium.Cartesian3.add(camera.position, Cesium.Matrix4.getTranslation(camera.transform), camera.position);
                     var rotation = Cesium.Matrix4.getRotation(camera.transform);
@@ -194,12 +194,10 @@ define(function(require) {
                     rotation.multiplyByVector(camera.up, camera.up);
                     rotation.multiplyByVector(camera.right, camera.right);
                     camera.transform = Cesium.Matrix4.IDENTITY.clone();
-                } else if (mode === Cesium.SceneMode.COLUMBUS_VIEW) {
-                    camera.transform = new Cesium.Matrix4(0.0, 0.0, 1.0, 0.0,
-                                                          1.0, 0.0, 0.0, 0.0,
-                                                          0.0, 1.0, 0.0, 0.0,
-                                                          0.0, 0.0, 0.0, 1.0);
                 }
+
+                var screenSpaceCameraController = scene.getScreenSpaceCameraController();
+                screenSpaceCameraController.setEllipsoid(ellipsoid);
             }
         }
 
