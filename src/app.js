@@ -1,7 +1,7 @@
 /*global define*/
 define(function(require) {
     "use strict";
-    /*global Cesium,Leap*/
+    /*global Cesium,Leap,$*/
 
     var viewHome = require('./viewHome');
     var computeRotation = require('./computeRotation');
@@ -165,6 +165,7 @@ define(function(require) {
             });
         }
 
+        var viewFromTo;
         clock.onTick.addEventListener(function(clock) {
             if (typeof viewFromTo !== 'undefined') {
                 viewFromTo.update(clock.currentTime);
@@ -177,8 +178,29 @@ define(function(require) {
         var proxy = new Cesium.DefaultProxy('/proxy/');
 
         function cancelViewFromTo() {
-            viewFromTo = undefined;
-            scene.getCamera().transform = Cesium.Matrix4.IDENTITY.clone();
+            if (typeof viewFromTo !== 'undefined') {
+                viewFromTo = undefined;
+                var camera = scene.getCamera();
+                var mode = scene.mode;
+                if (mode === Cesium.SceneMode.SCENE2D) {
+                    camera.transform = new Cesium.Matrix4(0, 0, 1, 0,
+                                                                     1, 0, 0, 0,
+                                                                     0, 1, 0, 0,
+                                                                     0, 0, 0, 1);
+                } else if (mode === Cesium.SceneMode.SCENE3D) {
+                    Cesium.Cartesian3.add(camera.position, Cesium.Matrix4.getTranslation(camera.transform), camera.position);
+                    var rotation = Cesium.Matrix4.getRotation(camera.transform);
+                    rotation.multiplyByVector(camera.direction, camera.direction);
+                    rotation.multiplyByVector(camera.up, camera.up);
+                    rotation.multiplyByVector(camera.right, camera.right);
+                    camera.transform = Cesium.Matrix4.IDENTITY.clone();
+                } else if (mode === Cesium.SceneMode.COLUMBUS_VIEW) {
+                    camera.transform = new Cesium.Matrix4(0.0, 0.0, 1.0, 0.0,
+                                                          1.0, 0.0, 0.0, 0.0,
+                                                          0.0, 1.0, 0.0, 0.0,
+                                                          0.0, 0.0, 0.0, 1.0);
+                }
+            }
         }
 
         var selectedID;
@@ -266,7 +288,6 @@ define(function(require) {
             return new Cesium.Extent(minLon, minLat, maxLon, maxLat);
         }
 
-        var viewFromTo;
         function pick(coordinates) {
             var pickedObject = scene.pick(coordinates);
             if (typeof pickedObject !== 'undefined') {
