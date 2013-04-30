@@ -3,8 +3,6 @@
   "version" : "1.0.0",
   "dependencies" : {
     "express" : "",
-    "nano" : "",
-    "q" : "",
     "request" : ""
   }
 }
