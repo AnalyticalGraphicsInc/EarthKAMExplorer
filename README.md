@@ -35,7 +35,9 @@ Building EarthKAM Explorer
 --------------------------
 * Clone this repo.
 * Install [NodeJS](http://nodejs.org/)
-* From the `server` folder, run `node server.js`.
+* From the `server` folder, run:
+   * `npm install`.
+   * `node server.js`.
 * Browse to [http://localhost:8080](http://localhost:8080)
 
 Resources
