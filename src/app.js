@@ -198,6 +198,9 @@ define(function(require) {
 
                 var screenSpaceCameraController = scene.getScreenSpaceCameraController();
                 screenSpaceCameraController.setEllipsoid(ellipsoid);
+                screenSpaceCameraController.enableTilt = true;
+                screenSpaceCameraController.enableTranslate = true;
+                screenSpaceCameraController.columbusViewMode = Cesium.CameraColumbusViewMode.FREE;
             }
         }
 
