@@ -1,8 +1,8 @@
-[![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/EarthKAMBanner.png)](http://cesiumspaceapp.cloudapp.net/)
+[![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/EarthKAMBanner.png)](http://cesiumjs.org/EarthKAMExplorer/)
 
 Use [Chrome](http://www.google.com/chrome/) or [Firefox](http://www.mozilla.org/en-US/firefox/new/) to run:
 
-[![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/run.png)](http://cesiumspaceapp.cloudapp.net/)
+[![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/run.png)](http://cesiumjs.org/EarthKAMExplorer/)
 
 EarthKAM Explorer provides web-based 3D exploration of satellite images taken by middle school students through the [ISS EarthKAM](https://earthkam.ucsd.edu/) program.
 
@@ -12,7 +12,7 @@ Select a mission to see the ISS orbit during that mission and polygons showing w
 
 ![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/iss2.jpg)
 
-EarthKAM Explorer is written in JavaScript using [Cesium](http://cesium.agi.com/), an open-source WebGL virtual globe and map, so it runs in a browser **without a plugin**.  It supports the [Leap Motion](https://www.leapmotion.com/) controller for **hand-gesture** input as shown below (use this [url](http://cesiumspaceapp.cloudapp.net/?leap=true)).
+EarthKAM Explorer is written in JavaScript using [Cesium](http://cesiumjs.org/), an open-source WebGL virtual globe and map, so it runs in a browser **without a plugin**.  It supports the [Leap Motion](https://www.leapmotion.com/) controller for **hand-gesture** input as shown below (use this [url](http://cesiumjs.org/EarthKAMExplorer/?leap=true)).
 
 ![](https://raw.github.com/AnalyticalGraphicsInc/EarthKAMExplorer/master/doc/leapmotion.jpg)
 
@@ -46,4 +46,4 @@ Resources
 * [EarthKAM Explorer project page](http://spaceappschallenge.org/project/earthkam-explorer/) on the Space Apps site.
 * [ISS EarthKAM Gallery](http://images.earthkam.ucsd.edu/main.php)
 * [ISS EarthKAM csv downloads](https://earthkam.ucsd.edu/ek-images/data)
-* [Cesium Documentation](http://cesium.agi.com/Cesium/Build/Documentation/)
+* [Cesium Documentation](http://cesiumjs.org/Cesium/Build/Documentation/)
