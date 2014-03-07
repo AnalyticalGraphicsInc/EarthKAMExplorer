@@ -54,7 +54,7 @@ define(function(require) {
         var transitioner = new Cesium.SceneTransitioner(scene);
 
         // Hack to replace default texture
-        Cesium.when(Cesium.loadImage('../Assets/loading.png'), function(image) {
+        Cesium.when(Cesium.loadImage('Assets/loading.png'), function(image) {
             scene.getContext()._defaultTexture = scene.getContext().createTexture2D({
                 source : image
             });

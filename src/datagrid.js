@@ -21,7 +21,7 @@ define(['TableTools'], function(TableTools) {
                 },
                 "aButtons" : [{
                     "sExtends" : "text",
-                    "sButtonText" : '<img src="/jQuery/css/down.png"/>',
+                    "sButtonText" : '<img src="jQuery/css/down.png">',
                     "sButtonClass" : "minus",
                     "fnClick" : function() {
                         Grid.ToggleMinimize();
@@ -51,10 +51,10 @@ define(['TableTools'], function(TableTools) {
         $('#grid_search').toggleClass('minimized');
 
         if ($button.hasClass('minus')) {
-            $button[0].innerHTML = '<span><img src="/jQuery/css/up.png"/></span>';
+            $button[0].innerHTML = '<span><img src="jQuery/css/up.png"></span>';
             $('#example_filter').css('display', 'none');
         } else {
-            $button[0].innerHTML = '<span><img src="/jQuery/css/down.png"/></span>';
+            $button[0].innerHTML = '<span><img src="jQuery/css/down.png"></span>';
             $('#example_filter').css('display', 'block');
         }
         $button.toggleClass('plus').toggleClass('minus');

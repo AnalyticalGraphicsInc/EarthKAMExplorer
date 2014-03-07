@@ -6,9 +6,7 @@
 
 @import url(jQuery/css/TableTools.css);
 
-@import
-    url(http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css)
-    ;
+@import url(http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css);
 
 body {
     padding: 0;
@@ -182,7 +180,7 @@ body {
     bottom: 30px;
     left: 300px;
     text-decoration: none;
-    background-image: url(../Assets/AGILogo3_overlay.png);
+    background-image: url(Assets/AGILogo3_overlay.png);
     background-size: 60px 30px;
     width: 60px;
     height: 30px;
