@@ -1,0 +1,17 @@
+{
+    "name" : "EarthKAMExplorer",
+    "version" : "1.0.0",
+    "description": "EarthKAMExplorer.",
+    "homepage": "https://github.com/AnalyticalGraphicsInc/EarthKAMExplorer",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/AnalyticalGraphicsInc/EarthKAMExplorer.git"
+    },
+    "devDependencies": {
+        "express": "4.4.4",
+        "compression": "1.0.8",
+        "request": "2.36.0",
+        "yargs": "1.2.6"
+    }
+}

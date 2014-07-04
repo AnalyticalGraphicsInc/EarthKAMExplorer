@@ -2,3 +2,4 @@
 /csv2Czml/bin
 /csv2Czml/obj
 /csv2Czml/*.suo
+node_modules
