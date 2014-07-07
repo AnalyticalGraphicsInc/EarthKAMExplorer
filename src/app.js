@@ -3,10 +3,6 @@ define(function(require) {
     "use strict";
     /*global Cesium,Leap,$*/
 
-    var viewHome = require('./viewHome');
-    var computeRotation = require('./computeRotation');
-    var createFlyToExtentAnimation = require('./createFlyToExtentAnimation');
-    var createImageryProviderViewModels = require('./createImageryProviderViewModels');
     var getQueryParameters = require('./getQueryParameters');
     var Grid = require('./datagrid');
     var onFrameChanged = require('./onFrameChanged');
@@ -19,70 +15,45 @@ define(function(require) {
 
     return function() {
         var queryParams = getQueryParameters();
-        var widget = new Cesium.CesiumWidget('cesiumContainer');
-        var centralBody = widget.centralBody;
+        var widget = new Cesium.Viewer('cesiumContainer');
+        var globe = widget.scene.globe;
 
         var terrainProvider = new Cesium.CesiumTerrainProvider({
             url : 'http://cesium.agi.com/smallterrain'
         });
 
-        centralBody.terrainProvider = terrainProvider;
+        globe.terrainProvider = terrainProvider;
 
-        var ellipsoid = centralBody.getEllipsoid();
+        var ellipsoid = globe.ellipsoid;
 
-        centralBody.logoOffset = new Cesium.Cartesian2(370, 26);
+        globe.logoOffset = new Cesium.Cartesian2(370, 26);
 
         var clock = widget.clock;
-
-        var clockViewModel = new Cesium.ClockViewModel(clock);
-
-        var animationViewModel = new Cesium.AnimationViewModel(clockViewModel);
-
-        var animationWidget = new Cesium.Animation('animationContainer', animationViewModel);
-
-        var timelineWidget = new Cesium.Timeline('timelineContainer', clock);
 
         function onTimelineScrub(e) {
             clock.currentTime = e.timeJulian;
             clock.shouldAnimate = false;
         }
-        timelineWidget.addEventListener('settime', onTimelineScrub, false);
-
-        var fullscreenWidget = new Cesium.FullscreenWidget('fullscreenContainer', document.body);
+        widget.timeline.addEventListener('settime', onTimelineScrub, false);
 
         var scene = widget.scene;
-        var transitioner = new Cesium.SceneTransitioner(scene);
 
         // Hack to replace default texture
         Cesium.when(Cesium.loadImage('Assets/loading.png'), function(image) {
-            scene.getContext()._defaultTexture = scene.getContext().createTexture2D({
-                source : image
-            });
+            //scene.getContext()._defaultTexture = scene.getContext().createTexture2D({
+               // source : image
+//            });
         });
 
-        var sceneModePickerWidget = new Cesium.SceneModePicker('sceneModePickerContainer', transitioner);
-
-        var camera3D = scene.getCamera().clone();
-        var canvas = widget.canvas;
-        var viewHomeButton = document.getElementById('viewHomeButton');
-        viewHomeButton.addEventListener('click', function() {
-            cancelViewFromTo();
-            viewHome(scene, transitioner, canvas, ellipsoid, camera3D);
-        });
-
-        var imageryLayers = centralBody.getImageryLayers();
-        var imageryProviderViewModels = createImageryProviderViewModels();
-        var baseLayerPicker = new Cesium.BaseLayerPicker('baseLayerPickerContainer', imageryLayers, imageryProviderViewModels);
-        baseLayerPicker.viewModel.selectedItem(imageryProviderViewModels[8]);
+//        viewHomeButton.addEventListener('click', function() {
+//            cancelViewFromTo();
+//        });
 
         var photoObjectCollection = new Cesium.DynamicObjectCollection();
-        var photoVisualizers = new Cesium.VisualizerCollection([new Cesium.DynamicPolygonBatchVisualizer(scene)], photoObjectCollection);
+        //var photoVisualizers = [new Cesium.DynamicPolygonBatchVisualizer(scene, photoObjectCollection)];
 
-        var selectedPhotoPolygon = new Cesium.Polygon();
-        selectedPhotoPolygon.material = new Cesium.Material.fromType(scene.getContext(), 'Image');
-
-        var issObjectCollection = new Cesium.DynamicObjectCollection();
-        var issVisualizers;
+        //var selectedPhotoPolygon = new Cesium.Polygon();
+        //selectedPhotoPolygon.material = new Cesium.Material.fromType(scene.getContext(), 'Image');
 
         var missionIndexPromise;
         var currentMissionName;
@@ -94,39 +65,23 @@ define(function(require) {
             var photoUrl = require.toUrl('../Assets/CZML/' + missionName + '.czml');
             var issUrl = require.toUrl('../Assets/CZML/' + missionName + '_iss.czml');
 
-            photoObjectCollection.clear();
-            scene.getPrimitives().remove(selectedPhotoPolygon);
-            issObjectCollection.clear();
-
-            if (typeof issVisualizers !== 'undefined') {
-                issVisualizers = issVisualizers.destroy();
-            }
+            photoObjectCollection.removeAll();
+            //scene.primitives.remove(selectedPhotoPolygon);
 
             Cesium.when.all([Cesium.loadJson(photoUrl), Cesium.loadJson(issUrl)]).then(function(czmlArray) {
                 var photoCzml = czmlArray[0];
                 var issCzml = czmlArray[1];
 
-                Cesium.processCzml(photoCzml, photoObjectCollection, photoUrl);
-                photoVisualizers.update(Cesium.Iso8601.MINIMUM_VALUE);
+                //Cesium.process(photoCzml, photoObjectCollection, photoUrl);
+                //photoVisualizers.update(Cesium.Iso8601.MINIMUM_VALUE);
 
-                selectedPhotoPolygon = new Cesium.Polygon();
-                selectedPhotoPolygon.material = new Cesium.Material.fromType(scene.getContext(), 'Image');
-                scene.getPrimitives().add(selectedPhotoPolygon);
+                //selectedPhotoPolygon = new Cesium.Polygon();
+                //selectedPhotoPolygon.material = new Cesium.Material.fromType(scene.getContext(), 'Image');
+                //scene.primitives.add(selectedPhotoPolygon);
 
-                Cesium.processCzml(issCzml, issObjectCollection, issUrl);
-                issVisualizers = new Cesium.VisualizerCollection(Cesium.CzmlDefaults.createVisualizers(scene), issObjectCollection);
-
-                var document = issObjectCollection.getObject('document');
-                if (typeof document !== 'undefined' && typeof document.clock !== 'undefined') {
-                    clock.startTime = document.clock.startTime;
-                    clock.stopTime = document.clock.stopTime;
-                    clock.clockRange = document.clock.clockRange;
-                    clock.clockStep = document.clock.clockStep;
-                    clock.currentTime = document.clock.currentTime;
-
-                    timelineWidget.zoomTo(clock.startTime, clock.stopTime);
-                    clockViewModel.synchronize();
-                }
+                var issDataSource = new Cesium.CzmlDataSource();
+                issDataSource.process(issCzml, issUrl);
+                widget.dataSources.add(issDataSource);
             });
 
             Grid.Maximize(); //Must maximize to prevent grid from re-drawing weirdly.
@@ -140,7 +95,7 @@ define(function(require) {
                 for ( var i = 0, len = times.length; i < len; ++i) {
                     var time = Cesium.JulianDate.fromIso8601(times[i]);
 
-                    var gregorianDate = time.toGregorianDate();
+                    var gregorianDate = Cesium.JulianDate.toGregorianDate(time);
                     var timeString = Cesium.sprintf('%04d/%02d/%02d %02d:%02d:%02d', gregorianDate.year, gregorianDate.month, gregorianDate.day, gregorianDate.hour, gregorianDate.minute, gregorianDate.second);
 
                     var id = data.ID[i];
@@ -170,9 +125,6 @@ define(function(require) {
             if (typeof viewFromTo !== 'undefined') {
                 viewFromTo.update(clock.currentTime);
             }
-            if (typeof issVisualizers !== 'undefined') {
-                issVisualizers.update(clock.currentTime);
-            }
         });
 
         var proxy = new Cesium.DefaultProxy('/proxy/');
@@ -180,7 +132,7 @@ define(function(require) {
         function cancelViewFromTo() {
             if (typeof viewFromTo !== 'undefined') {
                 viewFromTo = undefined;
-                var camera = scene.getCamera();
+                var camera = scene.camera;
                 var mode = scene.mode;
                 if (mode === Cesium.SceneMode.SCENE2D || mode === Cesium.SceneMode.COLUMBUS_VIEW) {
                     camera.transform = new Cesium.Matrix4(0.0, 0.0, 1.0, 0.0,
@@ -196,7 +148,7 @@ define(function(require) {
                     camera.transform = Cesium.Matrix4.IDENTITY.clone();
                 }
 
-                var screenSpaceCameraController = scene.getScreenSpaceCameraController();
+                var screenSpaceCameraController = scene.screenSpaceCameraController;
                 screenSpaceCameraController.setEllipsoid(ellipsoid);
                 screenSpaceCameraController.enableTilt = true;
                 screenSpaceCameraController.enableTranslate = true;
@@ -242,8 +194,8 @@ define(function(require) {
             }
 
             positions = photoPolygon.vertexPositions.getValueCartesian(clock.currentTime);
-            selectedPhotoPolygon.setPositions(positions, 0.0, computeRotation(positions, ellipsoid));
-            selectedPhotoPolygon.show = true;
+            //selectedPhotoPolygon.setPositions(positions, 0.0, computeRotation(positions, ellipsoid));
+            //selectedPhotoPolygon.show = true;
 
             missionIndexPromise.then(function(missionData) {
                 var missionDatum = missionData[id];
@@ -251,11 +203,11 @@ define(function(require) {
                 imageUrl = Number(imageUrl) + 3;
                 imageUrl = 'http://images.earthkam.ucsd.edu/main.php?g2_view=core.DownloadItem&g2_itemId=' + imageUrl;
                 imageUrl = proxy.getURL(imageUrl);
-                selectedPhotoPolygon.material.uniforms.image = imageUrl;
+                //selectedPhotoPolygon.material.uniforms.image = imageUrl;
 
-                scene.getAnimations().add(createFlyToExtentAnimation(scene.getFrameState(), extent, ellipsoid));
+                //scene.getAnimations().add(createFlyToExtentAnimation(scene.getFrameState(), extent, ellipsoid));
 
-                var time = clockViewModel.currentTime();
+                var time = clock.currentTime;
                 scene.getAnimations().add({
                     duration : 3000.0,
                     easingFunction : Cesium.Tween.Easing.Sinusoidal.InOut,
@@ -267,7 +219,7 @@ define(function(require) {
                     },
                     onUpdate : function(value) {
                         var newTime = time.addSeconds(value.time * time.getSecondsDifference(missionDatum.Time));
-                        clockViewModel.currentTime(newTime);
+                        clock.currentTime = Cesium.JulianDate.clone(newTime);
                     }
                 });
             });
@@ -301,7 +253,7 @@ define(function(require) {
 
                 var index = pickedObject.index;
                 if (typeof index !== 'undefined') {
-                    var polyObjects = photoObjectCollection.getObjects();
+                    var polyObjects = photoObjectCollection.dynamicObjects;
                     for ( var i = 0, length = polyObjects.length; i < length; i++) {
                         if (polyObjects[i]._polygonVisualizerIndex === index) {
                             selectImage(polyObjects[i].id);
@@ -312,7 +264,7 @@ define(function(require) {
             }
         }
 
-        var handler = new Cesium.ScreenSpaceEventHandler(scene.getCanvas());
+        var handler = new Cesium.ScreenSpaceEventHandler(scene.canvas);
         handler.setInputAction(function(movement) {
             pick(movement.position);
         }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
@@ -323,7 +275,7 @@ define(function(require) {
             if (typeof pickedObject !== 'undefined') {
                 var index = pickedObject.index;
                 if (typeof index !== 'undefined') {
-                    var polyObjects = photoObjectCollection.getObjects();
+                    var polyObjects = photoObjectCollection.dynamicObjects;
                     for ( var i = 0, length = polyObjects.length; i < length; i++) {
                         if (polyObjects[i]._polygonVisualizerIndex === index) {
                             mouseOverID = polyObjects[i].id;
@@ -356,7 +308,7 @@ define(function(require) {
 
         var controller = new Leap.Controller({enableGestures: true});
         controller.on('frame', function(frame) {
-            onFrameChanged(scene, frame, pick);
+            //onFrameChanged(scene, frame, pick);
         });
 
         if (queryParams.leap === 'true') {

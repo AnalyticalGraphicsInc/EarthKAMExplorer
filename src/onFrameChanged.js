@@ -7,7 +7,7 @@ define(['require'], function(require) {
     var height = 600.0 * 100.0;
 
     var ellipsoid = Cesium.Ellipsoid.WGS84;
-    var radius = ellipsoid.getMaximumRadius();
+    var radius = ellipsoid.maximumRadius;
     var rotateFactor = 1.0 / radius;
     var rotateRateRangeAdjustment = radius;
     var maximumRotateRate = 1.77;
